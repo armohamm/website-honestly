@@ -1,72 +1,79 @@
 // @flow
 
-import classnames from 'classnames/bind';
+import classnames from 'classnames';
 import React from 'react';
-import InlineSVG from 'svg-inline-react';
-import ReactGA from 'react-ga';
-
 import styles from './style.css';
-import arrowSVG from '../../../../assets/images/SVG/arrow.svg';
-import Link from '../../../components/link';
-import PrideHeart from '../../../components/pride-heart';
-
-const cx = classnames.bind(styles);
-
-const trackPrideClicks = () =>
-  ReactGA.event({
-    category: 'Pride Heart',
-    action: 'click',
-    label: 'Pride campaign',
-  });
 
 type State = {
-  animatePrideHeart: boolean,
-  animationDirection: string,
+  pathLength: ?number,
+  animateOut: boolean,
 };
 
 class HomepageTopSlice extends React.Component<{}, State> {
-  static prideLink: string =
-    'https://lp.red-badger.com/why-react-native-was-the-solution-for-pride-in-londons-2018-app';
+  state = {
+    pathLength: null,
+    animateOut: false,
+  };
 
-  constructor() {
-    super();
-    this.state = { animatePrideHeart: false, animationDirection: 'forward' };
-  }
+  onPathRef = (ref: ?mixed /* Flow doesn't have types for SvgPathElement yet */) => {
+    const pathLength: ?number =
+      ref && typeof ref.getTotalLength === 'function' ? ref.getTotalLength() : null;
 
-  animatePrideHeart(animationDirection: string) {
-    this.setState({ animatePrideHeart: true, animationDirection });
-  }
+    this.setState({ pathLength, animateOut: false });
+  };
+
+  onAnimationEnd = () => {
+    this.setState({ animateOut: true });
+  };
+
+  svg = () => {
+    const { pathLength, animateOut } = this.state;
+
+    const showWriting = pathLength != null;
+
+    return (
+      <svg
+        className={classnames({
+          [styles.hidden]: !showWriting,
+          [styles.animateOut]: animateOut,
+        })}
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        width="340px"
+        height="333px"
+        viewBox="0 0 340 333"
+        enableBackground="new 0 0 340 333"
+        xmlSpace="preserve"
+      >
+        <path
+          ref={this.onPathRef}
+          className={classnames(styles.writingPath, {
+            [styles.writingPathAnimate]: showWriting,
+          })}
+          style={{
+            strokeDasharray: pathLength || 0,
+            strokeDashoffset: pathLength || 0,
+          }}
+          onAnimationEnd={this.onAnimationEnd}
+          fill="none"
+          stroke="#000000"
+          strokeWidth="4"
+          strokeMiterlimit="10"
+          d="M66.039,133.545c0,0-21-57,18-67s49-4,65,8 s30,41,53,27s66,4,58,32s-5,44,18,57s22,46,0,45s-54-40-68-16s-40,88-83,48s11-61-11-80s-79-7-70-41 C46.039,146.545,53.039,128.545,66.039,133.545z"
+        />
+      </svg>
+    );
+  };
 
   render() {
-    const { animatePrideHeart, animationDirection } = this.state;
     return (
       <section className={styles.homepageTopSlice}>
         <div className={styles.sliceContainer}>
-          <a
-            href={HomepageTopSlice.prideLink}
-            className={styles.sloganWrapper}
-            onMouseOver={() => this.animatePrideHeart('forward')}
-            onFocus={() => this.animatePrideHeart('forward')}
-            onMouseOut={() => this.animatePrideHeart('reverse')}
-            onBlur={() => this.animatePrideHeart('reverse')}
-            onTouchStart={() => this.animatePrideHeart('forward')}
-            onClick={() => trackPrideClicks()}
-          >
-            <h1 className={styles.badgerSlogan}>Let’s make</h1>
-            <br />
-            <h1 className={styles.badgerSlogan}>things better</h1>
-            <PrideHeart play={animatePrideHeart} direction={animationDirection} />
-          </a>
-          <p className={cx('sloganDescription', 'fadeInUp')}>
-            <Link to="whatWeDoPage" className={styles.sloganLink}>
-              We are digital transformation experts who{' '}
-              <span className={styles.sloganUnderline}>innovate and </span>
-              <span className={styles.lastWord}>
-                <span className={styles.sloganUnderline}>deliver.</span>
-                <InlineSVG src={arrowSVG} className={styles.arrow} />
-              </span>
-            </Link>
-          </p>
+          <h1 className={styles.badgerSlogan}>We are catalysts for change through</h1>
+          <div className={styles.writingSpace}>{this.svg()}</div>
         </div>
       </section>
     );

@@ -1,4 +1,4 @@
-@value badgerRed, badgerWhite, badgerBlack from "../../../css/_colors.css";
+@value badgerRed, badgerWhite, badgerBlack, cainYellow from "../../../css/_colors.css";
 @value mediumScreen, largeScreen from "../../../css/_sizes.css";
 
 .arrow svg {
@@ -26,6 +26,46 @@
   composes: serif from '../../../css/typography/_fonts.css';
   display: inline-block;
   border-bottom: 2px solid badgerWhite;
+  text-align: center;
+}
+
+.writingSpace {
+  height: 120px;
+  width: 700px;
+  margin: 0 auto;
+  border-bottom: 3px solid #212121;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.writingPath {
+  stroke: cainYellow;
+}
+
+.writingPathAnimate {
+  animation: drawPath 3s linear forwards;
+}
+
+@keyframes drawPath {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animateOut {
+  animation: slideOut 0.3s ease-in forwards;
+  animation-delay: 0.5s;
+}
+
+@keyframes slideOut {
+  to {
+    transform: translate(calc(-1 * (50vw + 50%)));
+  }
 }
 
 .sloganWrapper:hover h1 {
@@ -89,7 +129,7 @@
   }
 
   .sliceContainer {
-    max-width: 830px;
+    max-width: 850px;
     display: inline-block;
     text-align: left;
   }
