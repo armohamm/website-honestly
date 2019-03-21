@@ -71,6 +71,8 @@ const baseConfig = {
   },
 
   optimization: {
+    namedModules: true,
+    namedChunks: true,
     splitChunks: {
       chunks: 'async',
       minSize: 30000,
