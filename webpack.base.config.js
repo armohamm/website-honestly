@@ -71,11 +71,8 @@ const baseConfig = {
   },
 
   optimization: {
-    namedModules: true,
-    namedChunks: true,
-    allChunks: true,
     splitChunks: {
-      chunks: 'async',
+      chunks: 'all',
       minSize: 30000,
       maxSize: 0,
       minChunks: 1,
@@ -109,6 +106,7 @@ const baseConfig = {
             : MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
+
             options: {
               modules: true,
               sourceMap: true,
