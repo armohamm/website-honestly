@@ -10,6 +10,7 @@ const webpackMerge = require('webpack-merge').smart;
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const LoadablePlugin = require('@loadable/webpack-plugin');
 
 const publicPath = `/${process.env.URL_BASENAME || ''}`;
 const robots = process.env.ALLOW_ROBOTS ? 'robots-allow.txt' : 'robots-disallow.txt';
@@ -35,7 +36,16 @@ function mediaFilesLoader(extraOptions) {
 }
 
 const baseConfig = {
-  stats: 'minimal',
+  stats: {
+    all: false,
+    modules: true,
+    maxModules: 0,
+    errors: true,
+    warnings: true,
+    /* The load order for our css modules shouldn't be an issue, 
+      see https://github.com/webpack-contrib/mini-css-extract-plugin/issues/250#issuecomment-415345126 */
+    warningsFilter: /mini-css-extract-plugin[^]*Conflicting order between:/,
+  },
 
   mode: 'development',
 
@@ -104,6 +114,7 @@ const baseConfig = {
       filename: 'assets-honestly/styles-[contenthash].css',
     }),
     new OptimizeCSSAssetsPlugin(),
+    new LoadablePlugin(),
   ],
 };
 

@@ -9,5 +9,6 @@ const stateHash = document.getElementById('state-hash').value;
 fetch(`/${process.env.URL_BASENAME || ''}state-${stateHash}.json`)
   .then(response => response.json())
   .then(state => {
+    console.log(1, makeApp({ element, state }));
     makeApp({ element, state }).start();
   });
