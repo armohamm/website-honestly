@@ -1,11 +1,17 @@
+import path from 'path';
 import crypto from 'crypto';
 import Helmet from 'react-helmet';
 
 import { renderToString } from 'react-dom/server';
+import { ChunkExtractor } from '@loadable/server'
 
 import createStateNavigator from '../routes';
 import layoutTemplate from '../index.ejs';
 import { cssPath, jsPath } from './asset-paths';
+
+
+const statsFile = path.resolve('./dist/loadable-stats.json')
+const extractor = new ChunkExtractor({ statsFile })
 
 const tracking = !!process.env.INSERT_TRACKING;
 
@@ -24,14 +30,14 @@ const titleFor = (def, props) => {
   Expanded: /, /about-us/join-us/software-engineer etc.
 */
 
-const routeFilePath = path => {
-  if (path === '') {
+const routeFilePath = routePath => {
+  if (routePath === '') {
     return 'index.html';
   }
-  if (path === '404') {
+  if (routePath === '404') {
     return '404.html';
   }
-  return `${path}/index.html`;
+  return `${routePath}/index.html`;
 };
 
 const filePathFor = (stateNavigator, key, params) => {
@@ -81,14 +87,14 @@ export function compileRoutes(state) {
     .digest('hex');
   const stateFile = {
     body: stateString,
-    path: `${process.env.URL_BASENAME || ''}state-${stateHash}.json`,
+    routePath: `${process.env.URL_BASENAME || ''}state-${stateHash}.json`,
     contentType: 'application/json',
     cacheControl: 'public, max-age=31536000',
   };
-  console.log(`Compiled ${stateFile.path}`); // eslint-disable-line no-console
+  console.log(`Compiled ${stateFile.routePath}`); // eslint-disable-line no-console
 
   const compile = route => {
-    const path = (process.env.URL_BASENAME || '') + route.filePath;
+    const routePath = (process.env.URL_BASENAME || '') + route.filePath;
 
     const title = `${route.title} | ${TITLE_SUFFIX}`;
 
@@ -114,11 +120,16 @@ export function compileRoutes(state) {
     const ejsMs = Date.now() - ejsStart;
     console.log(`Compiled ${route.filePath} render=${renderMs} ejs=${ejsMs}`); // eslint-disable-line no-console
 
-    return { body, path, contentType: 'text/html' };
+    return { body, routePath, contentType: 'text/html' };
   };
 
   const routeFiles = expandRoutes(state.data, stateNavigator).map(compile);
 
+  const chunks = extractor.collectChunks(routeFiles);
+
+  // routeFiles.body = renderToString(chunks);
+
+  console.log(routeFiles)
   return { ...state, data: [stateFile, ...routeFiles] };
 }
 
