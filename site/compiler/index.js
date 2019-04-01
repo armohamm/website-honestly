@@ -1,21 +1,20 @@
-import path from 'path';
 import crypto from 'crypto';
 import Helmet from 'react-helmet';
+import path from 'path';
 
+import { ChunkExtractor } from '@loadable/server';
 import { renderToString } from 'react-dom/server';
-import { ChunkExtractor } from '@loadable/server'
 
 import createStateNavigator from '../routes';
 import layoutTemplate from '../index.ejs';
 import { cssPath, jsPath } from './asset-paths';
 
-
-const statsFile = path.resolve('./dist/loadable-stats.json')
-const extractor = new ChunkExtractor({ statsFile })
-
 const tracking = !!process.env.INSERT_TRACKING;
 
 const TITLE_SUFFIX = 'Red Badger';
+
+const statsFile = path.resolve('./dist/loadable-stats.json');
+const extractor = new ChunkExtractor({ statsFile, entrypoints: ['index'] });
 
 const titleFor = (def, props) => {
   if (typeof def.title === 'function') {
@@ -87,11 +86,11 @@ export function compileRoutes(state) {
     .digest('hex');
   const stateFile = {
     body: stateString,
-    routePath: `${process.env.URL_BASENAME || ''}state-${stateHash}.json`,
+    path: `${process.env.URL_BASENAME || ''}state-${stateHash}.json`,
     contentType: 'application/json',
     cacheControl: 'public, max-age=31536000',
   };
-  console.log(`Compiled ${stateFile.routePath}`); // eslint-disable-line no-console
+  console.log(`Compiled ${stateFile.path}`); // eslint-disable-line no-console
 
   const compile = route => {
     const routePath = (process.env.URL_BASENAME || '') + route.filePath;
@@ -102,9 +101,15 @@ export function compileRoutes(state) {
 
     stateNavigator.navigateLink(route.link, 'none');
     const renderStart = Date.now();
-    const bodyContent = renderToString(route.component({ stateNavigator, title }, route.props));
+    const jsx = extractor.collectChunks(route.component({ stateNavigator, title }, route.props));
+    const bodyContent = renderToString(jsx);
     const meta = typeof window === 'undefined' ? Helmet.rewind().meta : null;
     const renderMs = Date.now() - renderStart;
+
+  // need to place these in layoutTemplate/ index.ejs
+    const scriptTags = extractor.getScriptTags(); 
+    const linkTags = extractor.getLinkTags(); 
+    const styleTags = extractor.getStyleTags();
 
     const ejsStart = Date.now();
     const body = layoutTemplate({
@@ -116,6 +121,9 @@ export function compileRoutes(state) {
       jsPath,
       meta,
       stateHash,
+      scriptTags,
+      linkTags,
+      styleTags,
     });
     const ejsMs = Date.now() - ejsStart;
     console.log(`Compiled ${route.filePath} render=${renderMs} ejs=${ejsMs}`); // eslint-disable-line no-console
@@ -125,11 +133,6 @@ export function compileRoutes(state) {
 
   const routeFiles = expandRoutes(state.data, stateNavigator).map(compile);
 
-  const chunks = extractor.collectChunks(routeFiles);
-
-  // routeFiles.body = renderToString(chunks);
-
-  console.log(routeFiles)
   return { ...state, data: [stateFile, ...routeFiles] };
 }
 
