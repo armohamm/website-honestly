@@ -47,7 +47,7 @@ make scanner
 
 # Fetch and stash dynamic data for development. You might need to do this
 # every time you want to get updated data from staging for local development.
-make fetch
+make fetch 
 ```
 
 Now start the website:
