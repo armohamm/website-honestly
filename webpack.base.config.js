@@ -13,6 +13,8 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const sharpImageLoader = require('responsive-loader/sharp');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 
+const LoadablePlugin = require('@loadable/webpack-plugin');
+
 const publicPath = `/${process.env.URL_BASENAME || ''}`;
 const robots = process.env.ALLOW_ROBOTS ? 'robots-allow.txt' : 'robots-disallow.txt';
 
@@ -124,6 +126,7 @@ const baseConfig = {
       filename: 'assets-honestly/styles-[contenthash].css',
     }),
     new OptimizeCSSAssetsPlugin(),
+    new LoadablePlugin(),
   ],
 };
 
