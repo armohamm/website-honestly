@@ -1,5 +1,6 @@
 import 'es6-promise/auto';
 import 'whatwg-fetch';
+import { loadableReady } from '@loadable/component';
 
 import { makeApp } from '../site/client';
 
@@ -9,5 +10,7 @@ const stateHash = document.getElementById('state-hash').value;
 fetch(`/${process.env.URL_BASENAME || ''}state-${stateHash}.json`)
   .then(response => response.json())
   .then(state => {
-    makeApp({ element, state }).start();
+    loadableReady(() => {
+      makeApp({ element, state }).start();
+    });
   });
