@@ -75,7 +75,7 @@ export const expandRoutes = (state, stateNavigator) => {
 function compileRoutes(state) {
   const statsFile = path.resolve('./dist/loadable-stats.json');
   const stateNavigator = createStateNavigator();
-  const extractor = new ChunkExtractor({ statsFile });
+  const extractor = new ChunkExtractor({ statsFile, entrypoints: ['index'] });
 
   const stateString = state.data ? JSON.stringify(state.data) : '{}';
   const stateHash = crypto
@@ -105,6 +105,8 @@ function compileRoutes(state) {
     jsx.props.stateNavigator = component.props.stateNavigator;
     jsx.props.title = component.props.title;
 
+    const styleTags = extractor.getStyleTags();
+
     const bodyContent = renderToString(jsx);
     const meta = typeof window === 'undefined' ? Helmet.rewind().meta : null;
     const renderMs = Date.now() - renderStart;
@@ -119,6 +121,7 @@ function compileRoutes(state) {
       jsPath,
       meta,
       stateHash,
+      styleTags,
     });
     const renderTemplate = Date.now() - renderTemplateStart;
 

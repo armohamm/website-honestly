@@ -20,8 +20,10 @@ head
         //- Include raw html for meta tags:
         .
             !{meta}
-    if cssPath
-        link(rel="stylesheet" href=cssPath charset="utf-8")
+
+    //- Include raw html for style tags:
+    .
+        !{styleTags}
 
     script.
         /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
