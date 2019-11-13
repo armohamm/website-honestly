@@ -232,7 +232,7 @@ export function getData() {
       badgers: sortBadgers(allBadgers),
       categories: getCategories(allBadgers),
       qAndAs: selectValidQandAs(allQnA),
-      goldCoinPages: allGoldCoinPages,
+      goldCoinPages: allGoldCoinPages ? allGoldCoinPages.filter(page => page) : [],
       eventsBanner,
     }));
 }

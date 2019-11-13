@@ -54,6 +54,7 @@ describe('state', () => {
           allBadgers: [],
           allQnA: [],
           eventsBanner: [],
+          allGoldCoinPages: [],
         },
       });
 
@@ -71,6 +72,7 @@ describe('state', () => {
         instagramPosts: [],
         jobLookup: {},
         jobs: [],
+        goldCoinPages: [],
         qAndAs: [],
         triedAndTestedBlogPosts: [],
         tweets: [],
@@ -106,6 +108,7 @@ describe('state', () => {
           allBadgers: [],
           allQnA: [],
           eventsBanner: [],
+          allGoldCoinPages: [],
         },
       });
 
