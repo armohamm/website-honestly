@@ -26,7 +26,7 @@ npm install --global yarn
 # Clone the repo
 git clone https://github.com/redbadger/website-honestly.git
 
-# Install the deps
+#  Install the deps
 yarn
 
 # Set up the environment variables. Follow the instructions of this command:
